@@ -1,1 +1,94 @@
+CHIP DisplayCounter {
+    IN inc, reset;
+    OUT a,b,c,d,e,f,g;
 
+    PARTS:
+    Inc16(in=num, out=p);
+    Or(a=reset, b=over, out=zero);
+    Mux16(a=p, b=false, sel=zero, out=q);
+    Or(a=zero, b=inc, out=load);
+    Register(in=q, load=load, out[3]=A, out[2]=B, out[1]=C, out[0]=D, out=num, out[4]=over);
+
+    //nots
+    Not(in=A, out=NotA);
+    Not(in=B, out=NotB);
+    Not(in=C, out=NotC);
+    Not(in=D, out=NotD);
+
+    //a
+    And(a=NotB, b=NotD, out=NBND);
+    And(a=A, b=B, out=AB);
+    And(a=C, b=NotD, out=CND);
+    And(a=A, b=C, out=AC);
+
+    Or(a=NBND, b=AB, out=ap);
+    Or(a=CND, b=AC, out=aq);
+    Or(a=ap, b=aq, out=a);
+
+    //b
+    And(a=A, b=NotB, out=ANB);
+    And(a=NotA, b=B, out=NAB);
+    And(a=NAB, b=NotC, out=NABNC);
+    And(a=NotA, b=NotB, out=NANB);
+    And(a=NANB, b=C, out=NANBC);
+    And(a=AB, b=D, out=ABD);
+
+    Or(a=ANB, b=CND, out=bp);
+    Or(a=NABNC, b=NANBC, out=bq);
+    Or(a=bp, b=bq, out=bpq);
+    Or(a=bpq, b=ABD, out=b);
+
+    //c
+    And(a=B, b=C, out=BC);
+    And(a=NAB, b=D, out=NABD);
+    And(a=AB, b=NotD, out=ABND);
+    And(a=ANB, b=NotC, out=ANBNC);
+
+    Or(a=NBND, b=BC, out=cp);
+    Or(a=NANBC, b=NABD, out=cq);
+    Or(a=cp, b=cq, out=cpq);
+    Or(a=ABND, b=ANBNC, out=cr);
+    Or(a=cpq, b=cr, out=c);
+
+    //d 
+    And(a=NotC, b=D, out=NCD);
+    And(a=NotA, b=NotC, out=NANC);
+    And(a=NotA, b=D, out=NAD);
+
+    Or(a=ANB, b=NCD, out=dp);
+    Or(a=NAB, b=NANC, out=dq);
+    Or(a=dp, b=dq, out=dpq);
+    Or(a=dpq, b=NAD, out=d);
+
+    //e
+    And(a=NotC, b=NotD, out=NCND);
+    And(a=NAB, b=NotD, out=NABND);
+
+    Or(a=AC, b=NCND, out=ep);
+    Or(a=ANB, b=NABND, out=eq);
+    Or(a=ep, b=eq, out=epq);
+    Or(a=epq, b=NABNC, out=e);
+
+    //f
+    And(a=NANC, b=NotD, out=NANCND);
+    And(a=NAD, b=C, out=NACD);
+    And(a=NCD, b=A, out=ANCD);
+
+    Or(a=NBND, b=NANB, out=fp);
+    Or(a=NANCND, b=NACD, out=fq);
+    Or(a=fp, b=fq, out=fpq);
+    Or(a=fpq, b=ANCD, out=f);
+
+    //g
+    And(a=A, b=NotC, out=ANC);
+    And(a=B, b=NCD, out=BNCD);
+    And(a=NANB, b=NotD, out=NANBND);
+    And(a=NotB, b=C, out=NBC);
+    And(a=NBC, b=D, out=NBCD);
+    And(a=BC, b=NotD, out=BCND);
+
+    Or(a=ANC, b=BNCD, out=gp);
+    Or(a=NANBND, b=NBCD, out=gq);
+    Or(a=gp, b=gq, out=gpq);
+    Or(a=gpq, b=BCND, out=g);
+}
